@@ -27,14 +27,20 @@ export function Navbar({
   return (
     <header className="sticky top-0 z-30 w-full border-b border-glass-border bg-surface/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 lg:px-8">
-        <div className="flex items-center gap-2 shrink-0">
+        <button
+          onClick={() => {
+            onCategoryChange('all');
+            onSearch('');
+          }}
+          className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity"
+        >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
             <Zap className="h-4 w-4 text-white" />
           </div>
           <span className="text-lg font-bold tracking-tight text-text-primary hidden sm:block">
             InsightNewsFeed
           </span>
-        </div>
+        </button>
 
         <div className="hidden lg:flex items-center flex-1">
           <SearchBar value={searchQuery} onChange={onSearch} />

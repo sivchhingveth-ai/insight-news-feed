@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Key, ExternalLink, Check } from 'lucide-react';
+import { X, Key, ExternalLink, Check, Copy, Sparkles } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -23,11 +23,30 @@ function SettingsContent({ onClose }: { onClose: () => void }) {
     return localStorage.getItem('insight_gemini_key') || '';
   });
   const [saved, setSaved] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => inputRef.current?.focus(), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSave = () => {
     localStorage.setItem('insight_gemini_key', apiKey.trim());
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setTimeout(() => {
+      setSaved(false);
+      onClose();
+    }, 1500);
+  };
+
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      setApiKey(text);
+      inputRef.current?.focus();
+    } catch {
+      // clipboard access denied
+    }
   };
 
   return (
@@ -49,7 +68,7 @@ function SettingsContent({ onClose }: { onClose: () => void }) {
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <Key className="h-5 w-5 text-accent" />
-            <h2 className="text-lg font-bold text-text-primary">Settings</h2>
+            <h2 className="text-lg font-bold text-text-primary">Setup Insight AI</h2>
           </div>
           <button
             onClick={onClose}
@@ -60,41 +79,70 @@ function SettingsContent({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="space-y-4">
+          <div className="rounded-xl bg-accent/5 border border-accent/10 p-3">
+            <p className="text-xs text-text-secondary leading-relaxed">
+              <span className="font-semibold text-text-primary">3 quick steps:</span>
+              <br />
+              1. Click &ldquo;Get free key&rdquo; below
+              <br />
+              2. Copy your API key
+              <br />
+              3. Paste &amp; save here
+            </p>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-text-primary mb-1.5">
               Gemini API Key
             </label>
-            <input
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="AIza..."
-              className="w-full rounded-xl bg-white/5 border border-glass-border px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-accent/40 transition-colors"
-            />
-            <p className="mt-2 text-xs text-text-secondary">
-              Free tier: 15 req/min, 1M tokens/day.{' '}
+            <div className="flex gap-2">
+              <input
+                ref={inputRef}
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                placeholder="AIza..."
+                className="flex-1 rounded-xl bg-white/5 border border-glass-border px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-accent/40 transition-colors"
+              />
+              <button
+                onClick={handlePaste}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 border border-glass-border text-text-secondary hover:text-text-primary hover:bg-white/10 transition-colors"
+                title="Paste from clipboard"
+              >
+                <Copy className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-xs text-text-secondary">
+                Free tier: 15 req/min, 1M tokens/day
+              </p>
               <a
                 href="https://aistudio.google.com/apikey"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-accent hover:underline inline-flex items-center gap-1"
+                className="text-xs text-accent hover:underline inline-flex items-center gap-1"
               >
-                Get key <ExternalLink className="h-3 w-3" />
+                Get free key <ExternalLink className="h-3 w-3" />
               </a>
-            </p>
+            </div>
           </div>
 
           <button
             onClick={handleSave}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent/90 transition-colors"
+            disabled={!apiKey.trim()}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {saved ? (
               <>
                 <Check className="h-4 w-4" />
-                Saved!
+                Saved! Restarting...
               </>
             ) : (
-              'Save Key'
+              <>
+                <Sparkles className="h-4 w-4" />
+                Save & Start Using AI
+              </>
             )}
           </button>
         </div>
