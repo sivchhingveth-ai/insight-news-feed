@@ -31,6 +31,7 @@ export function Navbar({
           onClick={() => {
             onCategoryChange('all');
             onSearch('');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity"
         >
