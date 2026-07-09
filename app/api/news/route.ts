@@ -43,18 +43,18 @@ function parseXml(text: string) {
   return items;
 }
 
-function buildArticle(item: { title: string; link: string; description: string; pubDate: string }, feed: typeof RSS_FEEDS[0]) {
-  const hash = Buffer.from(item.link).toString('base64').slice(0, 12);
+function buildArticle(item: { title: string; link: string; description: string; pubDate: string }, feed: typeof RSS_FEEDS[0], index: number) {
   const pubTime = item.pubDate ? new Date(item.pubDate).getTime() : Date.now();
+  const slug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
   return {
-    id: `${feed.source}-${hash}`,
+    id: `${feed.category}-${slug}-${index}`,
     title: item.title,
     summary: item.description || 'No description available.',
     fullContent: item.description || 'No content available.',
     source: feed.source,
     sourceLogo: feed.logo,
     category: feed.category,
-    imageUrl: `https://picsum.photos/seed/${hash}/800/450`,
+    imageUrl: `https://picsum.photos/seed/${slug}/800/450`,
     publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
     url: item.link,
     isLive: Date.now() - pubTime < 30 * 60 * 1000,
@@ -78,13 +78,19 @@ export async function GET(req: NextRequest) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
       const items = parseXml(text);
-      return items.map((item) => buildArticle(item, feed));
+      return items.map((item, i) => buildArticle(item, feed, i));
     })
   );
 
+  const seen = new Set<string>();
   const articles = results
     .filter((r): r is PromiseFulfilledResult<ReturnType<typeof buildArticle>[]> => r.status === 'fulfilled')
     .flatMap((r) => r.value)
+    .filter((a) => {
+      if (seen.has(a.url)) return false;
+      seen.add(a.url);
+      return true;
+    })
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
   return NextResponse.json({ articles, count: articles.length });
