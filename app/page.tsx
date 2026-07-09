@@ -14,7 +14,6 @@ import { useBookmarks } from '@/hooks/useBookmarks';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAI } from '@/hooks/useAI';
 import { Article } from '@/lib/types';
-import { mockArticles } from '@/lib/mockData';
 
 function Dashboard() {
   const {
@@ -34,7 +33,7 @@ function Dashboard() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const breakingNews = mockArticles.filter((a) => a.isLive);
+  const breakingNews = articles.filter((a) => a.isLive || a.isNew).slice(0, 10);
 
   return (
     <>

@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'API key required. Get one free at aistudio.google.com/apikey' },
+        { error: 'No API key provided. Click the gear icon to add your Gemini API key.' },
         { status: 400 }
       );
     }
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     const chat = model.startChat({
       history: [
-        { role: 'user', parts: [{ text: 'You are Insight AI, a news assistant for InsightNewsFeed. Follow these rules: Be concise (under 200 words). Be factual. Use article context when provided.' }] },
+        { role: 'user', parts: [{ text: 'You are Insight AI, a news assistant for InsightNewsFeed. Follow these rules: Be concise (under 200 words). Be factual. Use article context when provided. If the user asks about news, provide helpful summaries.' }] },
         { role: 'model', parts: [{ text: 'Understood. I am Insight AI, ready to summarize news and answer questions accurately and concisely.' }] },
       ],
       generationConfig: {
@@ -33,6 +33,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ response });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
+
+    if (message.includes('API_KEY_INVALID') || message.includes('key not valid')) {
+      return NextResponse.json(
+        { error: 'Invalid API key. Please get a free key at aistudio.google.com/apikey and save it in Settings.' },
+        { status: 401 }
+      );
+    }
+
+    if (message.includes('fetch') || message.includes('network')) {
+      return NextResponse.json(
+        { error: 'Network error. Please check your internet connection and try again.' },
+        { status: 502 }
+      );
+    }
+
     console.error('Gemini API error:', message);
     return NextResponse.json(
       { error: `AI request failed: ${message}` },
