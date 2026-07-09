@@ -89,6 +89,7 @@ function Dashboard() {
       </main>
 
       <NewsSlideOver
+        key={selectedArticle?.id || 'closed'}
         article={selectedArticle}
         isBookmarked={selectedArticle ? isBookmarked(selectedArticle.id) : false}
         onBookmarkToggle={(id) => {
