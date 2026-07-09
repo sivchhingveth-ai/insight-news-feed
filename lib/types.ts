@@ -1,6 +1,6 @@
 export type Category =
   | 'all'
-  | 'trending'
+  | 'trading'
   | 'tech'
   | 'ai'
   | 'technology'

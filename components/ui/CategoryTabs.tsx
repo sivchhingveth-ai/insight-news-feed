@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 const categories: { value: Category; label: string }[] = [
   { value: 'all', label: 'All' },
-  { value: 'trending', label: 'Trending' },
+  { value: 'trading', label: 'Trading' },
   { value: 'tech', label: 'Tech' },
   { value: 'ai', label: 'AI' },
   { value: 'technology', label: 'Technology' },

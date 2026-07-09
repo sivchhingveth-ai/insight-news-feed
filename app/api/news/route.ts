@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const RSS_FEEDS: { url: string; category: string; source: string; logo: string; format: 'rss' | 'atom' }[] = [
-  // Trending — fetch all, sorted by date
-  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', category: 'trending', source: 'NY Times', logo: '📰', format: 'rss' },
-  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', category: 'trending', source: 'NY Times', logo: '📰', format: 'rss' },
-  { url: 'https://feeds.bbci.co.uk/news/rss.xml', category: 'trending', source: 'BBC News', logo: '🇬🇧', format: 'rss' },
-  { url: 'https://www.aljazeera.com/xml/rss/all.xml', category: 'trending', source: 'Al Jazeera', logo: '📡', format: 'rss' },
+  // Trading — financial & investment news
+  { url: 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114', category: 'trading', source: 'CNBC', logo: '📈', format: 'rss' },
+  { url: 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147', category: 'trading', source: 'CNBC Finance', logo: '💰', format: 'rss' },
+  { url: 'https://feeds.content.dowjones.io/public/rss/mw_topstories', category: 'trading', source: 'MarketWatch', logo: '📊', format: 'rss' },
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml', category: 'trading', source: 'NY Times', logo: '📰', format: 'rss' },
 
   // Tech — general technology
   { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', category: 'tech', source: 'NY Times', logo: '📰', format: 'rss' },
@@ -121,7 +121,7 @@ function buildArticle(item: { title: string; link: string; description: string; 
     category = 'tech';
   }
   if (feed.category === 'wars' && !matchesKeywords(item.title, WAR_KEYWORDS)) {
-    category = 'trending';
+    category = 'trading';
   }
 
   return {
@@ -145,7 +145,7 @@ export async function GET(req: NextRequest) {
   const category = req.nextUrl.searchParams.get('category') || 'all';
 
   const feeds = category === 'all'
-    ? RSS_FEEDS.filter((f) => f.category === 'trending')
+    ? RSS_FEEDS.filter((f) => f.category === 'trading')
     : RSS_FEEDS.filter((f) => f.category === category);
 
   const results = await Promise.allSettled(

@@ -9,7 +9,7 @@ export function Sidebar() {
       <div className="glass p-5">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="h-4 w-4 text-accent" />
-          <h3 className="text-sm font-semibold text-text-primary">Trending Topics</h3>
+          <h3 className="text-sm font-semibold text-text-primary">Market Movers</h3>
         </div>
         <ul className="space-y-3">
           {trendingTopics.map((item) => (

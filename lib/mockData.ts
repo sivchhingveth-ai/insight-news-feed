@@ -27,7 +27,7 @@ export const mockArticles: Article[] = [
     fullContent: 'Global financial markets experienced a significant rally today following new trade agreements.',
     source: 'Bloomberg',
     sourceLogo: '📊',
-    category: 'trending',
+    category: 'trading',
     imageUrl: 'https://picsum.photos/seed/markets/800/450',
     publishedAt: new Date(now - 15 * min).toISOString(),
     url: '#',
@@ -188,17 +188,17 @@ export const mockArticles: Article[] = [
 ];
 
 export const trendingTopics = [
-  { topic: '#CeasefireNow', count: '156K posts' },
-  { topic: '#GPT5', count: '98K posts' },
-  { topic: '#AIRegulation', count: '87K posts' },
-  { topic: '#SpaceX', count: '64K posts' },
-  { topic: '#TeslaEV', count: '52K posts' },
+  { topic: 'S&P 500', count: '+1.2% today' },
+  { topic: 'NVIDIA', count: '$180.50' },
+  { topic: 'Bitcoin', count: '$68,420' },
+  { topic: 'Gold', count: '$2,380/oz' },
+  { topic: 'Tesla (TSLA)', count: '$252.30' },
 ];
 
 export const topSources = [
-  { name: 'NY Times', articles: 342 },
-  { name: 'BBC News', articles: 289 },
-  { name: 'Al Jazeera', articles: 256 },
-  { name: 'The Verge', articles: 231 },
-  { name: 'MIT Tech Review', articles: 198 },
+  { name: 'CNBC', articles: 342 },
+  { name: 'MarketWatch', articles: 289 },
+  { name: 'Bloomberg', articles: 256 },
+  { name: 'NY Times Business', articles: 231 },
+  { name: 'Reuters Finance', articles: 198 },
 ];

@@ -53,7 +53,7 @@ function Dashboard() {
           <div className="flex-1 min-w-0">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-bold text-text-primary">
-                {category === 'all' ? 'Latest News' : category === 'trending' ? 'Trending' : category === 'ai' ? 'AI' : category.charAt(0).toUpperCase() + category.slice(1)}
+                {category === 'all' ? 'Latest News' : category === 'trading' ? 'Trading' : category === 'ai' ? 'AI' : category.charAt(0).toUpperCase() + category.slice(1)}
               </h2>
               <span className="text-sm text-text-secondary">
                 {articles.length} articles
@@ -61,7 +61,7 @@ function Dashboard() {
             </div>
 
             {isLoading ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="glass overflow-hidden animate-pulse">
                     <div className="h-44 bg-white/5" />
