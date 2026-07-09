@@ -53,7 +53,7 @@ function Dashboard() {
           <div className="flex-1 min-w-0">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-bold text-text-primary">
-                {category === 'all' ? 'Latest News' : `${category.charAt(0).toUpperCase() + category.slice(1)}`}
+                {category === 'all' ? 'Latest News' : category === 'trending' ? 'Trending' : category === 'ai' ? 'AI' : category.charAt(0).toUpperCase() + category.slice(1)}
               </h2>
               <span className="text-sm text-text-secondary">
                 {articles.length} articles

@@ -1,67 +1,123 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const RSS_FEEDS: { url: string; category: string; source: string; logo: string }[] = [
-  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', category: 'tech', source: 'NY Times', logo: '📰' },
-  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', category: 'world', source: 'NY Times', logo: '🌍' },
-  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml', category: 'business', source: 'NY Times', logo: '📊' },
-  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml', category: 'sports', source: 'NY Times', logo: '⚽' },
-  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Science.xml', category: 'science', source: 'NY Times', logo: '🔬' },
-  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Health.xml', category: 'health', source: 'NY Times', logo: '🏥' },
-  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml', category: 'politics', source: 'NY Times', logo: '🏛️' },
-  { url: 'https://feeds.bbci.co.uk/news/rss.xml', category: 'world', source: 'BBC News', logo: '🇬🇧' },
-  { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', category: 'tech', source: 'BBC Tech', logo: '💻' },
-  { url: 'https://feeds.bbci.co.uk/news/business/rss.xml', category: 'business', source: 'BBC Business', logo: '💰' },
-  { url: 'https://feeds.bbci.co.uk/sport/rss.xml', category: 'sports', source: 'BBC Sport', logo: '🏆' },
-  { url: 'https://feeds.bbci.co.uk/news/health/rss.xml', category: 'health', source: 'BBC Health', logo: '💊' },
-  { url: 'https://feeds.bbci.co.uk/news/world/rss.xml', category: 'world', source: 'BBC World', logo: '🌐' },
-  { url: 'https://www.aljazeera.com/xml/rss/all.xml', category: 'world', source: 'Al Jazeera', logo: '📡' },
+const RSS_FEEDS: { url: string; category: string; source: string; logo: string; format: 'rss' | 'atom' }[] = [
+  // Trending — fetch all, sorted by date
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', category: 'trending', source: 'NY Times', logo: '📰', format: 'rss' },
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', category: 'trending', source: 'NY Times', logo: '📰', format: 'rss' },
+  { url: 'https://feeds.bbci.co.uk/news/rss.xml', category: 'trending', source: 'BBC News', logo: '🇬🇧', format: 'rss' },
+  { url: 'https://www.aljazeera.com/xml/rss/all.xml', category: 'trending', source: 'Al Jazeera', logo: '📡', format: 'rss' },
+
+  // Tech — general technology
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', category: 'tech', source: 'NY Times', logo: '📰', format: 'rss' },
+  { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', category: 'tech', source: 'BBC Tech', logo: '💻', format: 'rss' },
+
+  // AI — artificial intelligence specific
+  { url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', category: 'ai', source: 'The Verge', logo: '🤖', format: 'atom' },
+  { url: 'https://www.technologyreview.com/feed/', category: 'ai', source: 'MIT Tech Review', logo: '🧠', format: 'rss' },
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', category: 'ai', source: 'NY Times', logo: '📰', format: 'rss' },
+
+  // Technology — broader tech & science
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Science.xml', category: 'technology', source: 'NY Times', logo: '🔬', format: 'rss' },
+  { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', category: 'technology', source: 'BBC Tech', logo: '💻', format: 'rss' },
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', category: 'technology', source: 'NY Times', logo: '📰', format: 'rss' },
+
+  // Wars — conflict & world news
+  { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', category: 'wars', source: 'NY Times', logo: '📰', format: 'rss' },
+  { url: 'https://feeds.bbci.co.uk/news/world/rss.xml', category: 'wars', source: 'BBC World', logo: '🌐', format: 'rss' },
+  { url: 'https://www.aljazeera.com/xml/rss/all.xml', category: 'wars', source: 'Al Jazeera', logo: '📡', format: 'rss' },
 ];
 
-function parseXml(text: string) {
+function parseXml(text: string, format: 'rss' | 'atom') {
   const items: { title: string; link: string; description: string; pubDate: string; imageUrl: string }[] = [];
-  const itemMatches = text.match(/<item>([\s\S]*?)<\/item>/gi) || [];
 
-  for (const item of itemMatches.slice(0, 5)) {
-    const title = item.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/i)?.[1]
-      || item.match(/<title>([\s\S]*?)<\/title>/i)?.[1]
-      || '';
-    const link = item.match(/<link>([\s\S]*?)<\/link>/i)?.[1] || '';
-    const description = item.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/i)?.[1]
-      || item.match(/<description>([\s\S]*?)<\/description>/i)?.[1]
-      || '';
-    const pubDate = item.match(/<pubDate>([\s\S]*?)<\/pubDate>/i)?.[1] || '';
+  if (format === 'atom') {
+    const entries = text.match(/<entry>([\s\S]*?)<\/entry>/gi) || [];
+    for (const entry of entries.slice(0, 5)) {
+      const title = entry.match(/<title[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/title>/i)?.[1]
+        || entry.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]
+        || '';
+      const link = entry.match(/<link[^>]*href="([^"]+)"/i)?.[1] || '';
+      const summary = entry.match(/<summary[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/summary>/i)?.[1]
+        || entry.match(/<summary[^>]*>([\s\S]*?)<\/summary>/i)?.[1]
+        || entry.match(/<content[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/content>/i)?.[1]
+        || entry.match(/<content[^>]*>([\s\S]*?)<\/content>/i)?.[1]
+        || '';
+      const pubDate = entry.match(/<published>([\s\S]*?)<\/published>/i)?.[1]
+        || entry.match(/<updated>([\s\S]*?)<\/updated>/i)?.[1]
+        || '';
+      const mediaContent = entry.match(/<media:content[^>]*url="([^"]+)"/i)?.[1]
+        || entry.match(/<media:thumbnail[^>]*url="([^"]+)"/i)?.[1]
+        || '';
 
-    // Extract real image from RSS: media:content > media:thumbnail > enclosure
-    const mediaContent = item.match(/<media:content[^>]*url="([^"]+)"/i)?.[1]
-      || item.match(/<media:thumbnail[^>]*url="([^"]+)"/i)?.[1]
-      || item.match(/<enclosure[^>]*url="([^"]+)"[^>]*type="image\/[^"]+"/i)?.[1]
-      || '';
+      if (title && link) {
+        items.push({
+          title: title.replace(/<[^>]*>/g, '').trim(),
+          link,
+          description: summary.replace(/<[^>]*>/g, '').trim(),
+          pubDate,
+          imageUrl: mediaContent,
+        });
+      }
+    }
+  } else {
+    const itemMatches = text.match(/<item>([\s\S]*?)<\/item>/gi) || [];
+    for (const item of itemMatches.slice(0, 5)) {
+      const title = item.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/i)?.[1]
+        || item.match(/<title>([\s\S]*?)<\/title>/i)?.[1]
+        || '';
+      const link = item.match(/<link>([\s\S]*?)<\/link>/i)?.[1] || '';
+      const description = item.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/i)?.[1]
+        || item.match(/<description>([\s\S]*?)<\/description>/i)?.[1]
+        || '';
+      const pubDate = item.match(/<pubDate>([\s\S]*?)<\/pubDate>/i)?.[1] || '';
+      const mediaContent = item.match(/<media:content[^>]*url="([^"]+)"/i)?.[1]
+        || item.match(/<media:thumbnail[^>]*url="([^"]+)"/i)?.[1]
+        || item.match(/<enclosure[^>]*url="([^"]+)"[^>]*type="image\/[^"]+"/i)?.[1]
+        || '';
 
-    if (title && link) {
-      items.push({
-        title: title.replace(/<[^>]*>/g, '').trim(),
-        link,
-        description: description.replace(/<[^>]*>/g, '').trim(),
-        pubDate,
-        imageUrl: mediaContent,
-      });
+      if (title && link) {
+        items.push({
+          title: title.replace(/<[^>]*>/g, '').trim(),
+          link,
+          description: description.replace(/<[^>]*>/g, '').trim(),
+          pubDate,
+          imageUrl: mediaContent,
+        });
+      }
     }
   }
   return items;
 }
 
+const WAR_KEYWORDS = ['war', 'strike', 'bomb', 'attack', 'conflict', 'military', 'troops', 'invasion', 'ceasefire', 'missile', 'weapon', 'nato', 'combat', 'soldier', 'ukraine', 'russia', 'gaza', 'israel', 'iran', 'Syria', 'yemen', 'coup', 'civil war', 'nuclear'];
+const AI_KEYWORDS = ['ai', 'artificial intelligence', 'chatgpt', 'openai', 'anthropic', 'gemini', 'llm', 'gpt', 'machine learning', 'deep learning', 'neural', 'copilot', 'claude', 'deepseek', 'meta ai', 'ai model', 'ai safety', 'agi'];
+
+function matchesKeywords(title: string, keywords: string[]) {
+  const lower = title.toLowerCase();
+  return keywords.some((kw) => lower.includes(kw));
+}
+
 function buildArticle(item: { title: string; link: string; description: string; pubDate: string; imageUrl: string }, feed: typeof RSS_FEEDS[0], index: number) {
   const pubTime = item.pubDate ? new Date(item.pubDate).getTime() : Date.now();
   const slug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
+
+  let category = feed.category;
+  if (feed.category === 'ai' && !matchesKeywords(item.title, AI_KEYWORDS)) {
+    category = 'tech';
+  }
+  if (feed.category === 'wars' && !matchesKeywords(item.title, WAR_KEYWORDS)) {
+    category = 'trending';
+  }
+
   return {
-    id: `${feed.category}-${slug}-${index}`,
+    id: `${category}-${slug}-${feed.source.replace(/\s+/g, '')}-${index}`,
     title: item.title,
     summary: item.description || 'No description available.',
     fullContent: item.description || 'No content available.',
     source: feed.source,
     sourceLogo: feed.logo,
-    category: feed.category,
-    imageUrl: item.imageUrl || `https://picsum.photos/seed/${feed.category}-${index}/800/450`,
+    category: category as 'all' | 'trending' | 'tech' | 'ai' | 'technology' | 'wars',
+    imageUrl: item.imageUrl || `https://picsum.photos/seed/${slug}/800/450`,
     publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
     url: item.link,
     isLive: Date.now() - pubTime < 30 * 60 * 1000,
@@ -73,7 +129,7 @@ export async function GET(req: NextRequest) {
   const category = req.nextUrl.searchParams.get('category') || 'all';
 
   const feeds = category === 'all'
-    ? RSS_FEEDS
+    ? RSS_FEEDS.filter((f) => f.category === 'trending')
     : RSS_FEEDS.filter((f) => f.category === category);
 
   const results = await Promise.allSettled(
@@ -84,7 +140,7 @@ export async function GET(req: NextRequest) {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
-      const items = parseXml(text);
+      const items = parseXml(text, feed.format);
       return items.map((item, i) => buildArticle(item, feed, i));
     })
   );

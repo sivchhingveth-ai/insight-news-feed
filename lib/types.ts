@@ -1,15 +1,10 @@
 export type Category =
   | 'all'
+  | 'trending'
   | 'tech'
-  | 'world'
-  | 'business'
-  | 'sports'
-  | 'science'
-  | 'war'
-  | 'health'
-  | 'entertainment'
-  | 'politics'
-  | 'climate';
+  | 'ai'
+  | 'technology'
+  | 'wars';
 
 export interface Article {
   id: string;

@@ -5,16 +5,11 @@ import { motion } from 'framer-motion';
 
 const categories: { value: Category; label: string }[] = [
   { value: 'all', label: 'All' },
+  { value: 'trending', label: 'Trending' },
   { value: 'tech', label: 'Tech' },
-  { value: 'world', label: 'World' },
-  { value: 'business', label: 'Business' },
-  { value: 'sports', label: 'Sports' },
-  { value: 'science', label: 'Science' },
-  { value: 'war', label: 'War & Conflict' },
-  { value: 'health', label: 'Health' },
-  { value: 'entertainment', label: 'Entertainment' },
-  { value: 'politics', label: 'Politics' },
-  { value: 'climate', label: 'Climate' },
+  { value: 'ai', label: 'AI' },
+  { value: 'technology', label: 'Technology' },
+  { value: 'wars', label: 'Wars' },
 ];
 
 interface CategoryTabsProps {
