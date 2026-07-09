@@ -64,7 +64,7 @@ export function useNews() {
           a.source.toLowerCase().includes(q)
         );
       })
-    : articles;
+    : articles.filter((a) => !a.isExpired);
 
   const changeCategory = (cat: Category) => {
     setCategory(cat);

@@ -46,7 +46,7 @@ function parseXml(text: string, format: 'rss' | 'atom') {
 
   if (format === 'atom') {
     const entries = text.match(/<entry>([\s\S]*?)<\/entry>/gi) || [];
-    for (const entry of entries.slice(0, 5)) {
+    for (const entry of entries.slice(0, 20)) {
       const title = entry.match(/<title[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/title>/i)?.[1]
         || entry.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]
         || '';
@@ -75,7 +75,7 @@ function parseXml(text: string, format: 'rss' | 'atom') {
     }
   } else {
     const itemMatches = text.match(/<item>([\s\S]*?)<\/item>/gi) || [];
-    for (const item of itemMatches.slice(0, 5)) {
+    for (const item of itemMatches.slice(0, 20)) {
       const title = item.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/i)?.[1]
         || item.match(/<title>([\s\S]*?)<\/title>/i)?.[1]
         || '';
@@ -114,6 +114,7 @@ function matchesKeywords(title: string, keywords: string[]) {
 function buildArticle(item: { title: string; link: string; description: string; pubDate: string; imageUrl: string }, feed: typeof RSS_FEEDS[0], index: number) {
   const pubTime = item.pubDate ? new Date(item.pubDate).getTime() : Date.now();
   const slug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
+  const ageMs = Date.now() - pubTime;
 
   let category = feed.category;
   if (feed.category === 'ai' && !matchesKeywords(item.title, AI_KEYWORDS)) {
@@ -134,8 +135,9 @@ function buildArticle(item: { title: string; link: string; description: string; 
     imageUrl: item.imageUrl || `https://picsum.photos/seed/${slug}/800/450`,
     publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
     url: item.link,
-    isLive: Date.now() - pubTime < 30 * 60 * 1000,
-    isNew: Date.now() - pubTime < 5 * 60 * 1000,
+    isLive: ageMs < 30 * 60 * 1000,
+    isNew: ageMs < 5 * 60 * 1000,
+    isExpired: ageMs > 24 * 60 * 60 * 1000,
   };
 }
 

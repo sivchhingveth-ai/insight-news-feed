@@ -19,4 +19,5 @@ export interface Article {
   url: string;
   isLive: boolean;
   isNew: boolean;
+  isExpired: boolean;
 }
