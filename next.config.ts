@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "static01.nyt.com" },
       { protocol: "https", hostname: "ichef.bbci.co.uk" },
       { protocol: "https", hostname: "nav.files.bbci.co.uk" },
+      { protocol: "https", hostname: "images.mktw.net" },
+      { protocol: "https", hostname: "image.cnbcfm.com" },
     ],
   },
 };

@@ -32,6 +32,7 @@ function Dashboard() {
 
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsKey, setSettingsKey] = useState(0);
 
   const breakingNews = articles.filter((a) => a.isLive || a.isNew).slice(0, 10);
 
@@ -102,8 +103,8 @@ function Dashboard() {
         onSummarize={summarizeArticle}
       />
 
-      <AIChatPanel onOpenSettings={() => setSettingsOpen(true)} />
-      <SettingsModal key={settingsOpen ? 'open' : 'closed'} isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <AIChatPanel onOpenSettings={() => { setSettingsKey((k) => k + 1); setSettingsOpen(true); }} />
+      <SettingsModal key={settingsKey} isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );
 }
