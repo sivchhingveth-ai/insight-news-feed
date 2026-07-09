@@ -116,22 +116,14 @@ function buildArticle(item: { title: string; link: string; description: string; 
   const slug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
   const ageMs = Date.now() - pubTime;
 
-  let category = feed.category;
-  if (feed.category === 'ai' && !matchesKeywords(item.title, AI_KEYWORDS)) {
-    category = 'tech';
-  }
-  if (feed.category === 'wars' && !matchesKeywords(item.title, WAR_KEYWORDS)) {
-    category = 'trading';
-  }
-
   return {
-    id: `${category}-${slug}-${feed.source.replace(/\s+/g, '')}-${index}`,
+    id: `${feed.category}-${slug}-${feed.source.replace(/\s+/g, '')}-${index}`,
     title: item.title,
     summary: item.description || 'No description available.',
     fullContent: item.description || 'No content available.',
     source: feed.source,
     sourceLogo: feed.logo,
-    category: category as 'all' | 'trending' | 'tech' | 'ai' | 'technology' | 'wars',
+    category: feed.category as 'all' | 'trading' | 'tech' | 'ai' | 'technology' | 'wars',
     imageUrl: item.imageUrl || `https://picsum.photos/seed/${slug}/800/450`,
     publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
     url: item.link,
@@ -162,15 +154,26 @@ export async function GET(req: NextRequest) {
   );
 
   const seen = new Set<string>();
-  const articles = results
+  let articles = results
     .filter((r): r is PromiseFulfilledResult<ReturnType<typeof buildArticle>[]> => r.status === 'fulfilled')
     .flatMap((r) => r.value)
     .filter((a) => {
       if (seen.has(a.url)) return false;
       seen.add(a.url);
       return true;
-    })
-    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+    });
+
+  // For AI tab, only keep articles with AI-related keywords
+  if (category === 'ai') {
+    articles = articles.filter((a) => matchesKeywords(a.title, AI_KEYWORDS));
+  }
+
+  // For Wars tab, only keep articles with war/conflict keywords
+  if (category === 'wars') {
+    articles = articles.filter((a) => matchesKeywords(a.title, WAR_KEYWORDS));
+  }
+
+  articles = articles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
   return NextResponse.json({ articles, count: articles.length });
 }
