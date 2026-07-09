@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { Navbar } from '@/components/layout/Navbar';
-import { Sidebar } from '@/components/layout/Sidebar';
 import { HeroSection } from '@/components/hero/HeroSection';
 import { NewsFeed } from '@/components/news/NewsFeed';
 import { NewsSlideOver } from '@/components/news/NewsSlideOver';
@@ -49,17 +48,15 @@ function Dashboard() {
 
       <HeroSection breakingNews={breakingNews} />
 
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-8">
-        <div className="flex gap-8">
-          <div className="flex-1 min-w-0">
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-text-primary">
-                {category === 'all' ? 'Latest News' : category === 'trading' ? 'Trading' : category === 'ai' ? 'AI' : category.charAt(0).toUpperCase() + category.slice(1)}
-              </h2>
-              <span className="text-sm text-text-secondary">
-                {articles.length} articles
-              </span>
-            </div>
+      <main className="w-full px-4 py-8 lg:px-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-text-primary">
+            {category === 'all' ? 'Latest News' : category === 'trading' ? 'Trading' : category === 'ai' ? 'AI' : category.charAt(0).toUpperCase() + category.slice(1)}
+          </h2>
+          <span className="text-sm text-text-secondary">
+            {articles.length} articles
+          </span>
+        </div>
 
             {isLoading ? (
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -83,11 +80,7 @@ function Dashboard() {
                 onSummarize={summarizeArticle}
               />
             )}
-          </div>
-
-          <Sidebar />
-        </div>
-      </main>
+          </main>
 
       <NewsSlideOver
         key={selectedArticle?.id || 'closed'}
