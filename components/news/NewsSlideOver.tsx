@@ -90,16 +90,16 @@ export function NewsSlideOver({
               </div>
             </div>
 
-            <div className="relative h-56 overflow-hidden">
+            <div className="relative h-72 overflow-hidden">
               <Image
                 src={imgError ? `https://picsum.photos/seed/${article.id}/800/450` : article.imageUrl}
                 alt={article.title}
                 fill
-                className="object-cover"
+                className="object-contain"
                 sizes="(max-width: 1024px) 100vw, 512px"
                 onError={() => setImgError(true)}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-60" />
             </div>
 
             <div className="p-6">

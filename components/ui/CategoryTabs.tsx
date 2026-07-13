@@ -24,15 +24,15 @@ export function CategoryTabs({ active, onChange }: CategoryTabsProps) {
         <button
           key={cat.value}
           onClick={() => onChange(cat.value)}
-          className="relative px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors"
-          style={{ color: active === cat.value ? 'var(--text-primary)' : 'var(--text-secondary)' }}
+          className={`relative rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 hover:bg-white/5 ${
+            active === cat.value ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
+          }`}
         >
           {active === cat.value && (
             <motion.div
               layoutId="activeCategory"
               className="absolute inset-0 rounded-lg bg-white/10"
-              style={{ background: 'var(--glass)' }}
-              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             />
           )}
           <span className="relative z-10">{cat.label}</span>
