@@ -27,11 +27,17 @@ function Dashboard() {
 
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { unseenCount, markSeen } = useNotifications(newCount);
-  const { summarizeArticle } = useAI();
+  const { messages, isLoading: isAiLoading, error: aiError, sendMessage, summarizeArticle, clearChat } = useAI();
 
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsKey, setSettingsKey] = useState(0);
+  const [aiChatOpen, setAiChatOpen] = useState(false);
+
+  const handleSummarize = (article: Article) => {
+    setAiChatOpen(true);
+    summarizeArticle(article);
+  };
 
   const breakingNews = articles.filter((a) => a.isLive || a.isNew).slice(0, 10);
 
@@ -77,7 +83,7 @@ function Dashboard() {
                 isBookmarked={isBookmarked}
                 onBookmarkToggle={toggleBookmark}
                 onArticleClick={setSelectedArticle}
-                onSummarize={summarizeArticle}
+                onSummarize={handleSummarize}
               />
             )}
           </main>
@@ -96,7 +102,17 @@ function Dashboard() {
         onSummarize={summarizeArticle}
       />
 
-      <AIChatPanel onOpenSettings={() => { setSettingsKey((k) => k + 1); setSettingsOpen(true); }} />
+      <AIChatPanel
+        isOpen={aiChatOpen}
+        messages={messages}
+        isLoading={isAiLoading}
+        error={aiError}
+        onOpen={() => setAiChatOpen(true)}
+        onClose={() => setAiChatOpen(false)}
+        onSend={sendMessage}
+        onClear={clearChat}
+        onOpenSettings={() => { setSettingsKey((k) => k + 1); setSettingsOpen(true); }}
+      />
       <SettingsModal key={settingsKey} isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );

@@ -1,12 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Article } from '@/lib/types';
-
-interface ChatMessage {
-  role: 'user' | 'assistant';
-  text: string;
-}
+import { Article, ChatMessage } from '@/lib/types';
 
 export function useAI() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);

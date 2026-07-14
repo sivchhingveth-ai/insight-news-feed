@@ -6,6 +6,11 @@ export type Category =
   | 'technology'
   | 'wars';
 
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  text: string;
+}
+
 export interface Article {
   id: string;
   title: string;

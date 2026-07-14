@@ -1,11 +1,19 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useAI } from '@/hooks/useAI';
+import { ChatMessage } from '@/lib/types';
 import { X, Send, Trash2, Settings, Sparkles, ExternalLink, Key } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AIChatPanelProps {
+  isOpen: boolean;
+  messages: ChatMessage[];
+  isLoading: boolean;
+  error: string | null;
+  onOpen: () => void;
+  onClose: () => void;
+  onSend: (text: string) => void;
+  onClear: () => void;
   onOpenSettings: () => void;
 }
 
@@ -14,11 +22,19 @@ function getHasKey(): boolean {
   return !!localStorage.getItem('insight_gemini_key');
 }
 
-export function AIChatPanel({ onOpenSettings }: AIChatPanelProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function AIChatPanel({
+  isOpen,
+  messages,
+  isLoading,
+  error,
+  onOpen,
+  onClose,
+  onSend,
+  onClear,
+  onOpenSettings,
+}: AIChatPanelProps) {
   const [input, setInput] = useState('');
   const [hasKey, setHasKey] = useState(() => getHasKey());
-  const { messages, isLoading, error, sendMessage, clearChat } = useAI();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,12 +45,12 @@ export function AIChatPanel({ onOpenSettings }: AIChatPanelProps) {
 
   const handleOpen = () => {
     setHasKey(getHasKey());
-    setIsOpen(true);
+    onOpen();
   };
 
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
-    sendMessage(input.trim());
+    onSend(input.trim());
     setInput('');
   };
 
@@ -57,7 +73,7 @@ export function AIChatPanel({ onOpenSettings }: AIChatPanelProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
+              onClick={onClose}
               className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
             />
 
@@ -85,14 +101,14 @@ export function AIChatPanel({ onOpenSettings }: AIChatPanelProps) {
                     <Settings className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={clearChat}
+                    onClick={onClear}
                     className="flex h-7 w-7 items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/10 transition-colors"
                     title="Clear chat"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => setIsOpen(false)}
+                    onClick={onClose}
                     className="flex h-7 w-7 items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/10 transition-colors"
                   >
                     <X className="h-4 w-4" />

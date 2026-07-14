@@ -29,16 +29,13 @@ const RSS_FEEDS: { url: string; category: string; source: string; logo: string; 
 
 function decodeHtmlEntities(str: string) {
   return str
-    .replace(/&#0*39;/g, "'")
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&nbsp;/g, ' ')
-    .replace(/&#\d+;/g, (m) => {
-      const code = parseInt(m.slice(2, -1), 10);
-      return String.fromCharCode(code);
-    });
+    .replace(/&#x([0-9a-fA-F]+);/g, (_m, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_m, dec) => String.fromCharCode(parseInt(dec, 10)));
 }
 
 function parseXml(text: string, format: 'rss' | 'atom') {
