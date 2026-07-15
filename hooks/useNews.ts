@@ -28,7 +28,17 @@ export function useNews() {
     if (!fetchedRef.current) {
       fetchedRef.current = true;
       fetchLiveNews('all').then((data) => {
-        if (data.length > 0) setArticles(data);
+        if (data.length > 0) {
+          setArticles((prev) => {
+            const merged = [...prev, ...data];
+            const seen = new Set<string>();
+            return merged.filter((a) => {
+              if (seen.has(a.id)) return false;
+              seen.add(a.id);
+              return true;
+            });
+          });
+        }
         setIsLoading(false);
       });
     }
@@ -40,7 +50,17 @@ export function useNews() {
     let cancelled = false;
     setIsLoading(true);
     fetchLiveNews(category).then((data) => {
-      if (!cancelled && data.length > 0) setArticles(data);
+      if (!cancelled && data.length > 0) {
+        setArticles((prev) => {
+          const merged = [...prev, ...data];
+          const seen = new Set<string>();
+          return merged.filter((a) => {
+            if (seen.has(a.id)) return false;
+            seen.add(a.id);
+            return true;
+          });
+        });
+      }
       if (!cancelled) setIsLoading(false);
     });
 
@@ -52,7 +72,17 @@ export function useNews() {
 
     const interval = setInterval(() => {
       fetchLiveNews('all').then((data) => {
-        if (data.length > 0) setArticles(data);
+        if (data.length > 0) {
+          setArticles((prev) => {
+            const merged = [...prev, ...data];
+            const seen = new Set<string>();
+            return merged.filter((a) => {
+              if (seen.has(a.id)) return false;
+              seen.add(a.id);
+              return true;
+            });
+          });
+        }
       });
     }, 30000);
 
