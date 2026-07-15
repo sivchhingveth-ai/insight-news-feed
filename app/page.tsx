@@ -135,6 +135,7 @@ function Dashboard() {
 
       <BookmarksPage
         isOpen={bookmarksOpen}
+        articles={articles}
         onClose={() => setBookmarksOpen(false)}
         onArticleClick={(article) => {
           setBookmarksOpen(false);

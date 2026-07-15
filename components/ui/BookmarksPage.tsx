@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import { useBookmarks } from '@/hooks/useBookmarks';
-import { useNews } from '@/hooks/useNews';
 import { NewsCard } from '@/components/news/NewsCard';
 import { Article } from '@/lib/types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,14 +9,14 @@ import { Bookmark, X } from 'lucide-react';
 
 interface BookmarksPageProps {
   isOpen: boolean;
+  articles: Article[];
   onClose: () => void;
   onArticleClick: (article: Article) => void;
   onSummarize: (article: Article) => void;
 }
 
-export function BookmarksPage({ isOpen, onClose, onArticleClick, onSummarize }: BookmarksPageProps) {
+export function BookmarksPage({ isOpen, articles, onClose, onArticleClick, onSummarize }: BookmarksPageProps) {
   const { bookmarks, toggleBookmark, isBookmarked } = useBookmarks();
-  const { articles } = useNews();
 
   const savedArticles = useMemo(
     () => articles.filter((a) => bookmarks.includes(a.id)),
