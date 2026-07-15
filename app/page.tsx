@@ -7,6 +7,7 @@ import { HeroSection } from '@/components/hero/HeroSection';
 import { NewsFeed } from '@/components/news/NewsFeed';
 import { NewsSlideOver } from '@/components/news/NewsSlideOver';
 import { AIChatPanel } from '@/components/ui/AIChatPanel';
+import { BookmarksPage } from '@/components/ui/BookmarksPage';
 import { useNews } from '@/hooks/useNews';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -24,12 +25,13 @@ function Dashboard() {
     search,
   } = useNews();
 
-  const { isBookmarked, toggleBookmark } = useBookmarks();
+  const { bookmarks, isBookmarked, toggleBookmark } = useBookmarks();
   const { unseenCount, markSeen } = useNotifications(newCount);
   const { messages, isLoading: isAiLoading, error: aiError, sendMessage, summarizeArticle, clearChat } = useAI();
 
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [aiChatOpen, setAiChatOpen] = useState(false);
+  const [bookmarksOpen, setBookmarksOpen] = useState(false);
 
   const handleSummarize = (article: Article) => {
     setSelectedArticle(null); // close the slide-over so the chat is visible
@@ -48,12 +50,12 @@ function Dashboard() {
   // Single source of truth for locking background scroll — avoids two
   // overlays racing on document.body.style.overflow.
   useEffect(() => {
-    const locked = selectedArticle !== null || aiChatOpen;
+    const locked = selectedArticle !== null || aiChatOpen || bookmarksOpen;
     document.body.style.overflow = locked ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
     };
-  }, [selectedArticle, aiChatOpen]);
+  }, [selectedArticle, aiChatOpen, bookmarksOpen]);
 
   const breakingNews = articles.filter((a) => a.isLive || a.isNew).slice(0, 10);
 
@@ -66,6 +68,8 @@ function Dashboard() {
         onSearch={search}
         notificationCount={unseenCount}
         onNotificationClick={markSeen}
+        bookmarkCount={bookmarks.length}
+        onBookmarkClick={() => setBookmarksOpen(true)}
       />
 
       <HeroSection breakingNews={breakingNews} />
@@ -127,6 +131,16 @@ function Dashboard() {
         onClose={() => setAiChatOpen(false)}
         onSend={sendMessage}
         onClear={clearChat}
+      />
+
+      <BookmarksPage
+        isOpen={bookmarksOpen}
+        onClose={() => setBookmarksOpen(false)}
+        onArticleClick={(article) => {
+          setBookmarksOpen(false);
+          setSelectedArticle(article);
+        }}
+        onSummarize={handleSummarize}
       />
     </>
   );

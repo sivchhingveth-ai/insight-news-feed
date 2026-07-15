@@ -5,6 +5,7 @@ import { SearchBar } from '@/components/ui/SearchBar';
 import { CategoryTabs } from '@/components/ui/CategoryTabs';
 import { NotificationBell } from '@/components/ui/NotificationBell';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { Bookmark } from 'lucide-react';
 import Image from 'next/image';
 
 interface NavbarProps {
@@ -14,6 +15,8 @@ interface NavbarProps {
   onSearch: (query: string) => void;
   notificationCount: number;
   onNotificationClick: () => void;
+  bookmarkCount: number;
+  onBookmarkClick: () => void;
 }
 
 export function Navbar({
@@ -23,6 +26,8 @@ export function Navbar({
   onSearch,
   notificationCount,
   onNotificationClick,
+  bookmarkCount,
+  onBookmarkClick,
 }: NavbarProps) {
   return (
     <header className="sticky top-0 z-30 w-full border-b border-glass-border bg-surface/70 backdrop-blur-xl">
@@ -54,6 +59,18 @@ export function Navbar({
         </nav>
 
         <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={onBookmarkClick}
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl transition-colors"
+            aria-label="Saved articles"
+          >
+            <Bookmark className="h-5 w-5 text-text-secondary hover:text-text-primary transition-colors" />
+            {bookmarkCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold text-white">
+                {bookmarkCount > 9 ? '9+' : bookmarkCount}
+              </span>
+            )}
+          </button>
           <NotificationBell count={notificationCount} onClick={onNotificationClick} />
           <ThemeToggle />
         </div>
