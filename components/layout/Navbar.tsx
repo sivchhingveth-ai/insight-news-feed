@@ -26,7 +26,7 @@ export function Navbar({
 }: NavbarProps) {
   return (
     <header className="sticky top-0 z-30 w-full border-b border-glass-border bg-surface/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 lg:px-8">
+      <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center gap-2 sm:gap-4 px-3 sm:px-4 lg:px-8">
         <button
           onClick={() => {
             onCategoryChange('all');

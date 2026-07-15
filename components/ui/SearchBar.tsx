@@ -37,7 +37,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         placeholder="Search news..."
-        className={`h-10 rounded-xl bg-transparent border pl-9 pr-8 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none transition-[width,border-color,box-shadow] duration-300 ease-out w-44 lg:w-56 ${
+        className={`h-10 rounded-xl bg-transparent border pl-9 pr-8 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none transition-[width,border-color,box-shadow] duration-300 ease-out w-full lg:w-56 ${
           focused
             ? 'border-accent/50 shadow-[0_0_0_3px_rgba(59,130,246,0.15)] lg:w-72'
             : 'border-glass-border'

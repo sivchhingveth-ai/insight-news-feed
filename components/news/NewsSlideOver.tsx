@@ -54,9 +54,9 @@ export function NewsSlideOver({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 z-50 h-full w-full max-w-lg overflow-y-auto border-l border-glass-border bg-surface/95 backdrop-blur-xl"
+            className="fixed inset-0 sm:inset-auto sm:right-0 sm:top-0 z-50 h-full sm:max-w-lg overflow-y-auto border-l border-glass-border bg-surface/95 backdrop-blur-xl"
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-glass-border bg-surface/80 backdrop-blur-xl p-4">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-glass-border bg-surface/80 backdrop-blur-xl p-3 sm:p-4">
               <div className="flex items-center gap-2">
                 <Image
                   src={article.sourceLogo}
@@ -88,7 +88,7 @@ export function NewsSlideOver({
               </div>
             </div>
 
-            <div className="relative h-72 overflow-hidden">
+            <div className="relative h-48 sm:h-72 overflow-hidden">
               <Image
                 src={imgError ? `https://picsum.photos/seed/${article.id}/1280/720` : article.imageUrl}
                 alt={article.title}
@@ -102,7 +102,7 @@ export function NewsSlideOver({
               <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-60" />
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="mb-3 flex items-center gap-2 text-xs text-text-secondary">
                 <span>{timeAgo(article.publishedAt)}</span>
                 <span>·</span>
@@ -117,7 +117,7 @@ export function NewsSlideOver({
                 {description}
               </p>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <SummarizeButton
                   onClick={() => onSummarize(article)}
                   size="md"

@@ -70,7 +70,7 @@ function Dashboard() {
 
       <HeroSection breakingNews={breakingNews} />
 
-      <main className="w-full px-4 py-8 lg:px-8">
+      <main className="w-full px-3 sm:px-4 py-6 sm:py-8 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-bold text-text-primary">
             {category === 'all' ? 'Latest News' : category === 'trading' ? 'Trading' : category === 'ai' ? 'AI' : category.charAt(0).toUpperCase() + category.slice(1)}
@@ -81,7 +81,7 @@ function Dashboard() {
         </div>
 
             {isLoading ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="glass overflow-hidden animate-pulse">
                     <div className="h-44 bg-white/5" />
