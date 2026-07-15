@@ -84,6 +84,7 @@ export function useNews() {
 
   return {
     articles: filteredArticles,
+    allArticles: articles,
     category,
     searchQuery,
     isLoading,

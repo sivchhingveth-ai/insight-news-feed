@@ -17,6 +17,7 @@ import { Article, Category } from '@/lib/types';
 function Dashboard() {
   const {
     articles,
+    allArticles,
     category,
     searchQuery,
     isLoading,
@@ -151,7 +152,7 @@ function Dashboard() {
 
       <BookmarksPage
         isOpen={bookmarksOpen}
-        articles={articles}
+        articles={allArticles}
         bookmarkIds={bookmarks}
         onClose={() => setBookmarksOpen(false)}
         onArticleClick={(article) => {
