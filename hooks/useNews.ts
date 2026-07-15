@@ -35,7 +35,7 @@ export function useNews() {
   }, []);
 
   useEffect(() => {
-    if (!fetchedRef.current || category === 'saved') return;
+    if (!fetchedRef.current) return;
 
     let cancelled = false;
     setIsLoading(true);

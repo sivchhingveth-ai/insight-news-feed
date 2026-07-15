@@ -1,6 +1,5 @@
 export type Category =
   | 'all'
-  | 'saved'
   | 'trading'
   | 'tech'
   | 'ai'

@@ -60,13 +60,20 @@ function Dashboard() {
   const breakingNews = articles.filter((a) => a.isLive || a.isNew).slice(0, 10);
 
   const displayArticles = useMemo(() => {
-    if (category === 'saved') {
-      return articles.filter((a) => bookmarks.includes(a.id));
-    }
-    return articles;
+    const bookmarked = articles.filter((a) => bookmarks.includes(a.id));
+    const filtered = category === 'all'
+      ? articles
+      : articles.filter((a) => a.category === category);
+    const merged = [...bookmarked, ...filtered.filter((a) => !bookmarks.includes(a.id))];
+    const seen = new Set<string>();
+    return merged.filter((a) => {
+      if (seen.has(a.id)) return false;
+      seen.add(a.id);
+      return true;
+    });
   }, [category, articles, bookmarks]);
 
-  const articleCount = category === 'saved' ? displayArticles.length : articles.length;
+  const articleCount = displayArticles.length;
 
   return (
     <>
@@ -86,7 +93,7 @@ function Dashboard() {
       <main className="w-full px-3 sm:px-4 py-6 sm:py-8 lg:px-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-bold text-text-primary">
-            {category === 'all' ? 'Latest News' : category === 'saved' ? 'Saved Articles' : category === 'trading' ? 'Trading' : category === 'ai' ? 'AI' : category.charAt(0).toUpperCase() + category.slice(1)}
+            {category === 'all' ? 'Latest News' : category === 'trading' ? 'Trading' : category === 'ai' ? 'AI' : category.charAt(0).toUpperCase() + category.slice(1)}
           </h2>
           <span className="text-sm text-text-secondary">
             {articleCount} articles
