@@ -22,15 +22,19 @@ export function CategoryTabs({ active, onChange }: CategoryTabsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [thumbLeft, setThumbLeft] = useState(0);
   const [thumbWidth, setThumbWidth] = useState(0);
+  const [isOverflowing, setIsOverflowing] = useState(false);
 
   const updateThumb = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     const { scrollLeft, scrollWidth, clientWidth } = el;
     const maxScroll = scrollWidth - clientWidth;
-    if (maxScroll <= 0) {
+    const overflow = maxScroll > 0;
+    setIsOverflowing(overflow);
+
+    if (!overflow) {
       setThumbLeft(0);
-      setThumbWidth(100);
+      setThumbWidth(0);
       return;
     }
     const trackWidth = clientWidth;
@@ -80,14 +84,16 @@ export function CategoryTabs({ active, onChange }: CategoryTabsProps) {
         ))}
       </div>
 
-      {/* Scroll indicator bar */}
-      <div className="relative mt-1 h-0.5 w-full overflow-hidden rounded-full bg-white/5">
-        <motion.div
-          className="absolute top-0 h-full rounded-full bg-accent/50"
-          animate={{ left: thumbLeft, width: thumbWidth }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        />
-      </div>
+      {/* Scroll indicator bar — only visible when content overflows */}
+      {isOverflowing && (
+        <div className="relative mt-1 h-0.5 w-full overflow-hidden rounded-full bg-white/5">
+          <motion.div
+            className="absolute top-0 h-full rounded-full bg-accent/50"
+            animate={{ left: thumbLeft, width: thumbWidth }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          />
+        </div>
+      )}
     </div>
   );
 }
