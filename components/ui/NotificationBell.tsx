@@ -2,6 +2,7 @@
 
 import { Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 interface NotificationBellProps {
   count: number;
@@ -9,6 +10,10 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ count, onClick }: NotificationBellProps) {
+  const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe mount detection
+  useEffect(() => setMounted(true), []);
+
   return (
     <button
       onClick={onClick}
@@ -17,7 +22,7 @@ export function NotificationBell({ count, onClick }: NotificationBellProps) {
     >
       <Bell className="h-5 w-5 text-text-secondary hover:text-text-primary transition-colors" />
       <AnimatePresence>
-        {count > 0 && (
+        {mounted && count > 0 && (
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}

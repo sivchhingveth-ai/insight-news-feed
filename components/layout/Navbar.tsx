@@ -7,6 +7,7 @@ import { NotificationBell } from '@/components/ui/NotificationBell';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Bookmark } from 'lucide-react';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
 
 interface NavbarProps {
   category: Category;
@@ -29,6 +30,10 @@ export function Navbar({
   bookmarkCount,
   onBookmarkClick,
 }: NavbarProps) {
+  const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration-safe mount detection
+  useEffect(() => setMounted(true), []);
+
   return (
     <header className="sticky top-0 z-30 w-full border-b border-glass-border bg-surface/70 backdrop-blur-xl">
       <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center gap-2 sm:gap-4 px-3 sm:px-4 lg:px-8">
@@ -65,7 +70,7 @@ export function Navbar({
             aria-label="Saved articles"
           >
             <Bookmark className="h-5 w-5 text-text-secondary hover:text-text-primary transition-colors" />
-            {bookmarkCount > 0 && (
+            {mounted && bookmarkCount > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold text-white">
                 {bookmarkCount > 9 ? '9+' : bookmarkCount}
               </span>
