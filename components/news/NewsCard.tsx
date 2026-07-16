@@ -8,7 +8,7 @@ import { BookmarkButton } from '@/components/ui/BookmarkButton';
 import { SummarizeButton } from '@/components/ui/SummarizeButton';
 import { motion } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
 interface NewsCardProps {
   article: Article;
@@ -18,7 +18,7 @@ interface NewsCardProps {
   onSummarize: (article: Article) => void;
 }
 
-export function NewsCard({
+export const NewsCard = memo(function NewsCard({
   article,
   isBookmarked,
   onBookmarkToggle,
@@ -30,7 +30,6 @@ export function NewsCard({
 
   return (
     <motion.article
-      layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -49,6 +48,7 @@ export function NewsCard({
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          loading="lazy"
           onError={() => setImgError(true)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -82,7 +82,7 @@ export function NewsCard({
             alt={article.source}
             width={20}
             height={20}
-            className="rounded"
+            className="h-5 w-5 rounded"
             unoptimized
           />
           <span className="text-xs font-medium text-text-secondary">
@@ -118,4 +118,4 @@ export function NewsCard({
       </div>
     </motion.article>
   );
-}
+});

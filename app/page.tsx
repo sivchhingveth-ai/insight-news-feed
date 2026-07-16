@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { Navbar } from '@/components/layout/Navbar';
 import { HeroSection } from '@/components/hero/HeroSection';
@@ -34,22 +34,17 @@ function Dashboard() {
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const [bookmarksOpen, setBookmarksOpen] = useState(false);
 
-  const handleSummarize = (article: Article) => {
-    setSelectedArticle(null); // close the slide-over so the chat is visible
+  const handleSummarize = useCallback((article: Article) => {
+    setSelectedArticle(null);
     setAiChatOpen(true);
     summarizeArticle(article);
-  };
+  }, [summarizeArticle]);
 
-  // Jump back to the top whenever the category filter changes.
-  // Use an instant scroll — the list is replaced by a loading skeleton on
-  // change, and that reflow cancels a smooth-scroll animation mid-flight.
-  const handleCategoryChange = (cat: Category) => {
+  const handleCategoryChange = useCallback((cat: Category) => {
     changeCategory(cat);
     window.scrollTo(0, 0);
-  };
+  }, [changeCategory]);
 
-  // Single source of truth for locking background scroll — avoids two
-  // overlays racing on document.body.style.overflow.
   useEffect(() => {
     const locked = selectedArticle !== null || aiChatOpen || bookmarksOpen;
     document.body.style.overflow = locked ? 'hidden' : '';
@@ -58,29 +53,40 @@ function Dashboard() {
     };
   }, [selectedArticle, aiChatOpen, bookmarksOpen]);
 
-  const breakingNews = articles.filter((a) => a.isLive || a.isNew).slice(0, 10);
+  const breakingNews = useMemo(() => articles.filter((a) => a.isLive || a.isNew).slice(0, 10), [articles]);
+
+  const articleMap = useMemo(() => {
+    const map = new Map<string, Article>();
+    for (const a of allArticles) map.set(a.id, a);
+    return map;
+  }, [allArticles]);
 
   const validBookmarks = useMemo(() => {
     return bookmarks.filter((id) => {
-      const article = articles.find((a) => a.id === id);
+      const article = articleMap.get(id);
       if (!article) return true;
       return !article.isExpired;
     });
-  }, [bookmarks, articles]);
+  }, [bookmarks, articleMap]);
+
+  const validBookmarkSet = useMemo(() => new Set(validBookmarks), [validBookmarks]);
 
   const displayArticles = useMemo(() => {
-    const bookmarked = articles.filter((a) => validBookmarks.includes(a.id));
     const filtered = category === 'all'
       ? articles
       : articles.filter((a) => a.category === category);
-    const merged = [...bookmarked, ...filtered.filter((a) => !validBookmarks.includes(a.id))];
+
+    const bookmarked = articles.filter((a) => validBookmarkSet.has(a.id));
+    const nonBookmarked = filtered.filter((a) => !validBookmarkSet.has(a.id));
+    const merged = [...bookmarked, ...nonBookmarked];
+
     const seen = new Set<string>();
     return merged.filter((a) => {
       if (seen.has(a.id)) return false;
       seen.add(a.id);
       return true;
     }).filter((a) => !a.isExpired);
-  }, [category, articles, validBookmarks]);
+  }, [category, articles, validBookmarkSet]);
 
   const articleCount = displayArticles.length;
 

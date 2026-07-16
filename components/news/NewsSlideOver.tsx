@@ -63,7 +63,7 @@ export function NewsSlideOver({
                   alt={article.source}
                   width={24}
                   height={24}
-                  className="rounded"
+                  className="h-6 w-6 rounded"
                   unoptimized
                 />
                 <span className="text-sm font-medium text-text-secondary">{article.source}</span>

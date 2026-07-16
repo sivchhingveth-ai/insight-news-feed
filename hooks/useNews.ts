@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Article, Category } from '@/lib/types';
 
 async function fetchLiveNews(category?: Category): Promise<Article[]> {
@@ -77,28 +77,31 @@ export function useNews() {
     return () => clearInterval(interval);
   }, [category, searchQuery]);
 
-  const filteredArticles = searchQuery
-    ? articles.filter((a) => {
-        const q = searchQuery.toLowerCase();
+  const filteredArticles = useMemo(() => {
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return articles.filter((a) => {
         return (
           a.title.toLowerCase().includes(q) ||
           a.summary.toLowerCase().includes(q) ||
           a.source.toLowerCase().includes(q)
         );
-      })
-    : articles.filter((a) => !a.isExpired);
+      });
+    }
+    return articles.filter((a) => !a.isExpired);
+  }, [articles, searchQuery]);
 
-  const changeCategory = (cat: Category) => {
+  const changeCategory = useCallback((cat: Category) => {
     setCategory(cat);
     setSearchQuery('');
-  };
+  }, []);
 
-  const search = (query: string) => {
+  const search = useCallback((query: string) => {
     setSearchQuery(query);
     if (query) setCategory('all');
-  };
+  }, []);
 
-  const newCount = filteredArticles.filter((a) => a.isNew).length;
+  const newCount = useMemo(() => filteredArticles.filter((a) => a.isNew).length, [filteredArticles]);
 
   return {
     articles: filteredArticles,

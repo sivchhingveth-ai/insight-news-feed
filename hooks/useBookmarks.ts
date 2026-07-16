@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { getBookmarks, toggleBookmark as storeToggle } from '@/lib/store';
 
 export function useBookmarks() {
@@ -15,9 +15,11 @@ export function useBookmarks() {
     return next;
   }, []);
 
+  const bookmarkSet = useMemo(() => new Set(bookmarks), [bookmarks]);
+
   const isBookmarked = useCallback(
-    (id: string) => bookmarks.includes(id),
-    [bookmarks]
+    (id: string) => bookmarkSet.has(id),
+    [bookmarkSet]
   );
 
   return { bookmarks, toggleBookmark: toggle, isBookmarked };

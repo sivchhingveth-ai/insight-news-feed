@@ -3,6 +3,7 @@
 import { Article } from '@/lib/types';
 import { NewsCard } from './NewsCard';
 import { AnimatePresence } from 'framer-motion';
+import { useMemo } from 'react';
 
 interface NewsFeedProps {
   articles: Article[];
@@ -19,6 +20,10 @@ export function NewsFeed({
   onArticleClick,
   onSummarize,
 }: NewsFeedProps) {
+  const bookmarkSet = useMemo(() => {
+    return new Set(articles.filter((a) => isBookmarked(a.id)).map((a) => a.id));
+  }, [articles, isBookmarked]);
+
   if (articles.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -31,12 +36,12 @@ export function NewsFeed({
 
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="sync">
         {articles.map((article) => (
           <NewsCard
             key={article.id}
             article={article}
-            isBookmarked={isBookmarked(article.id)}
+            isBookmarked={bookmarkSet.has(article.id)}
             onBookmarkToggle={onBookmarkToggle}
             onClick={onArticleClick}
             onSummarize={onSummarize}

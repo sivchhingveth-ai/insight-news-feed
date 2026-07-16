@@ -1,30 +1,33 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Article, ChatMessage } from '@/lib/types';
 
 export function useAI() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const messagesRef = useRef<ChatMessage[]>([]);
 
   const sendMessage = useCallback(
     async (text: string, article?: Article) => {
       setError(null);
       const userMsg: ChatMessage = { role: 'user', text };
 
-      // Show the clean text in the UI, but send the model the article context too.
       let promptText = text;
       if (article) {
         promptText = `[Article Context]\nTitle: ${article.title}\nSource: ${article.source}\nCategory: ${article.category}\nSummary: ${article.summary}\nFull Content: ${article.fullContent}\n\n[User Question]\n${text}`;
       }
 
-      setMessages((prev) => [...prev, userMsg]);
+      setMessages((prev) => {
+        const next = [...prev, userMsg];
+        messagesRef.current = next;
+        return next;
+      });
       setIsLoading(true);
 
       try {
-        // Send the conversation history so the assistant has context.
-        const payload = [...messages, { role: 'user' as const, text: promptText }];
+        const payload = [...messagesRef.current, { role: 'user' as const, text: promptText }];
 
         const res = await fetch('/api/summarize', {
           method: 'POST',
@@ -35,14 +38,18 @@ export function useAI() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to get response');
 
-        setMessages((prev) => [...prev, { role: 'assistant', text: data.response }]);
+        setMessages((prev) => {
+          const next = [...prev, { role: 'assistant' as const, text: data.response }];
+          messagesRef.current = next;
+          return next;
+        });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
       } finally {
         setIsLoading(false);
       }
     },
-    [messages]
+    []
   );
 
   const summarizeArticle = useCallback(
@@ -65,6 +72,7 @@ export function useAI() {
 
   const clearChat = useCallback(() => {
     setMessages([]);
+    messagesRef.current = [];
     setError(null);
   }, []);
 
