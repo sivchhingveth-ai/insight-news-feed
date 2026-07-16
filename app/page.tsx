@@ -26,7 +26,7 @@ function Dashboard() {
     search,
   } = useNews();
 
-  const { bookmarks, isBookmarked, toggleBookmark } = useBookmarks();
+  const { bookmarks, bookmarkedArticles, isBookmarked, toggleBookmark } = useBookmarks();
   const { unseenCount, markSeen } = useNotifications(newCount);
   const { messages, isLoading: isAiLoading, error: aiError, sendMessage, summarizeArticle, clearChat } = useAI();
 
@@ -61,6 +61,18 @@ function Dashboard() {
     return map;
   }, [allArticles]);
 
+  // Pass the article object along so a snapshot can be persisted with the id.
+  const handleBookmarkToggle = useCallback(
+    (id: string) => toggleBookmark(id, articleMap.get(id)),
+    [toggleBookmark, articleMap]
+  );
+
+  // Live articles plus saved snapshots that are no longer in any feed.
+  const bookmarksViewArticles = useMemo(() => {
+    const extras = bookmarkedArticles.filter((a) => !articleMap.has(a.id));
+    return extras.length === 0 ? allArticles : [...allArticles, ...extras];
+  }, [allArticles, articleMap, bookmarkedArticles]);
+
   const validBookmarks = useMemo(() => {
     return bookmarks.filter((id) => {
       const article = articleMap.get(id);
@@ -74,7 +86,7 @@ function Dashboard() {
   const displayArticles = useMemo(() => {
     const filtered = category === 'all'
       ? articles
-      : articles.filter((a) => a.category === category);
+      : articles.filter((a) => (a.categories ?? [a.category]).includes(category));
 
     const bookmarked = articles.filter((a) => validBookmarkSet.has(a.id));
     const nonBookmarked = filtered.filter((a) => !validBookmarkSet.has(a.id));
@@ -130,9 +142,10 @@ function Dashboard() {
               </div>
             ) : (
               <NewsFeed
+                key={category}
                 articles={displayArticles}
                 isBookmarked={isBookmarked}
-                onBookmarkToggle={toggleBookmark}
+                onBookmarkToggle={handleBookmarkToggle}
                 onArticleClick={setSelectedArticle}
                 onSummarize={handleSummarize}
               />
@@ -144,7 +157,7 @@ function Dashboard() {
         article={selectedArticle}
         isBookmarked={selectedArticle ? isBookmarked(selectedArticle.id) : false}
         onBookmarkToggle={(id) => {
-          toggleBookmark(id);
+          handleBookmarkToggle(id);
           if (selectedArticle?.id === id) {
             setSelectedArticle({ ...selectedArticle });
           }
@@ -166,7 +179,7 @@ function Dashboard() {
 
       <BookmarksPage
         isOpen={bookmarksOpen}
-        articles={allArticles}
+        articles={bookmarksViewArticles}
         bookmarkIds={validBookmarks}
         onClose={() => setBookmarksOpen(false)}
         onArticleClick={(article) => {
@@ -174,7 +187,7 @@ function Dashboard() {
           setSelectedArticle(article);
         }}
         onSummarize={handleSummarize}
-        onBookmarkToggle={toggleBookmark}
+        onBookmarkToggle={handleBookmarkToggle}
       />
     </>
   );

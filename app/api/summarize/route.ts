@@ -11,6 +11,10 @@ interface IncomingMessage {
   text: string;
 }
 
+// Caps so a client can't relay unbounded payloads to the Groq account.
+const MAX_MESSAGES = 20;
+const MAX_MESSAGE_CHARS = 12000;
+
 export async function POST(req: NextRequest) {
   try {
     const apiKey = process.env.GROQ_API_KEY;
@@ -25,9 +29,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { messages } = (await req.json()) as { messages: IncomingMessage[] };
+    const body = (await req.json().catch(() => null)) as { messages?: unknown } | null;
+    const rawMessages = Array.isArray(body?.messages) ? (body.messages as unknown[]) : [];
 
-    if (!Array.isArray(messages) || messages.length === 0) {
+    const messages = rawMessages
+      .filter((m): m is IncomingMessage => !!m && typeof (m as IncomingMessage).text === 'string')
+      .slice(-MAX_MESSAGES);
+
+    if (messages.length === 0) {
       return NextResponse.json({ error: 'No messages provided.' }, { status: 400 });
     }
 
@@ -35,7 +44,7 @@ export async function POST(req: NextRequest) {
       { role: 'system', content: SYSTEM_PROMPT },
       ...messages.map((m) => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
-        content: m.text,
+        content: m.text.slice(0, MAX_MESSAGE_CHARS),
       })),
     ];
 

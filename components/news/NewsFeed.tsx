@@ -29,10 +29,9 @@ export function NewsFeed({
     return new Set(articles.filter((a) => isBookmarked(a.id)).map((a) => a.id));
   }, [articles, isBookmarked]);
 
-  useEffect(() => {
-    setVisibleCount(BATCH_SIZE);
-  }, [articles]);
-
+  // No reset when `articles` changes: the 30s poll produces a new array and
+  // resetting here collapsed the feed back to 10 cards under the reader.
+  // Category switches remount this component via key={category} instead.
   useEffect(() => {
     if (visibleCount >= articles.length) return;
 

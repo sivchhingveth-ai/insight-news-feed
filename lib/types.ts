@@ -9,6 +9,8 @@ export type Category =
 export interface ChatMessage {
   role: 'user' | 'assistant';
   text: string;
+  /** Full text sent to the AI (e.g. with article context); `text` is what the UI shows. */
+  promptText?: string;
 }
 
 export interface Article {
@@ -19,6 +21,8 @@ export interface Article {
   source: string;
   sourceLogo: string;
   category: Category;
+  /** All categories this article belongs to (an article can match several tabs). */
+  categories?: Category[];
   imageUrl: string;
   publishedAt: string;
   url: string;

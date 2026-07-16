@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Article, Category } from '@/lib/types';
 
 async function fetchLiveNews(category?: Category): Promise<Article[]> {
@@ -17,16 +17,51 @@ async function fetchLiveNews(category?: Category): Promise<Article[]> {
   }
 }
 
-function dedupeByUrl(prev: Article[], next: Article[]): Article[] {
-  const seen = new Set(prev.map((a) => a.url));
-  const merged = [...prev];
-  for (const a of next) {
-    if (!seen.has(a.url)) {
-      seen.add(a.url);
-      merged.push(a);
+function articleCategories(a: Article): Category[] {
+  return a.categories ?? [a.category];
+}
+
+// isLive/isNew/isExpired are derived from publishedAt, so recompute them
+// locally — otherwise merged articles keep the flags from their first fetch
+// forever (LIVE/NEW badges that never clear).
+function refreshFlags(a: Article): Article {
+  const age = Date.now() - new Date(a.publishedAt).getTime();
+  const isLive = age < 30 * 60 * 1000;
+  const isNew = age < 5 * 60 * 1000;
+  const isExpired = age > 7 * 24 * 60 * 60 * 1000;
+  if (isLive === a.isLive && isNew === a.isNew && isExpired === a.isExpired) return a;
+  return { ...a, isLive, isNew, isExpired };
+}
+
+// Merge keeps the existing object for known URLs (stable identity for
+// bookmarks/memoization), unions categories, refreshes time flags, and
+// returns `prev` unchanged when nothing actually changed so downstream
+// memos and the feed's batching don't reset on every poll.
+function mergeArticles(prev: Article[], next: Article[]): Article[] {
+  const freshByUrl = new Map(next.map((a) => [a.url, a]));
+  let changed = false;
+
+  const merged = prev.map((old) => {
+    const fresh = freshByUrl.get(old.url);
+    let article = old;
+    if (fresh) {
+      freshByUrl.delete(old.url);
+      const cats = new Set([...articleCategories(old), ...articleCategories(fresh)]);
+      if (cats.size !== articleCategories(old).length) {
+        article = { ...old, categories: [...cats] };
+      }
     }
-  }
-  return merged;
+    const refreshed = refreshFlags(article);
+    if (refreshed !== old) changed = true;
+    return refreshed;
+  });
+
+  const additions = [...freshByUrl.values()];
+  if (additions.length === 0 && !changed) return prev;
+
+  return [...merged, ...additions].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
 }
 
 export function useNews() {
@@ -34,30 +69,19 @@ export function useNews() {
   const [category, setCategory] = useState<Category>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const fetchedRef = useRef(false);
 
+  // Single fetch effect — runs on mount (category starts as 'all') and on
+  // every category change. A separate mount effect caused a duplicate
+  // initial request.
   useEffect(() => {
-    if (!fetchedRef.current) {
-      fetchedRef.current = true;
-      fetchLiveNews('all').then((data) => {
-        if (data.length > 0) {
-          setArticles((prev) => dedupeByUrl(prev, data));
-        }
-        setIsLoading(false);
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!fetchedRef.current) return;
-
     let cancelled = false;
     setIsLoading(true);
     fetchLiveNews(category).then((data) => {
-      if (!cancelled && data.length > 0) {
-        setArticles((prev) => dedupeByUrl(prev, data));
+      if (cancelled) return;
+      if (data.length > 0) {
+        setArticles((prev) => mergeArticles(prev, data));
       }
-      if (!cancelled) setIsLoading(false);
+      setIsLoading(false);
     });
 
     return () => { cancelled = true; };
@@ -69,7 +93,7 @@ export function useNews() {
     const interval = setInterval(() => {
       fetchLiveNews('all').then((data) => {
         if (data.length > 0) {
-          setArticles((prev) => dedupeByUrl(prev, data));
+          setArticles((prev) => mergeArticles(prev, data));
         }
       });
     }, 30000);

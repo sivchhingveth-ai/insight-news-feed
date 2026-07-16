@@ -10,24 +10,32 @@ export function useAI() {
   const messagesRef = useRef<ChatMessage[]>([]);
 
   const sendMessage = useCallback(
-    async (text: string, article?: Article) => {
+    async (text: string, article?: Article, displayText?: string) => {
       setError(null);
-      const userMsg: ChatMessage = { role: 'user', text };
 
-      let promptText = text;
-      if (article) {
-        promptText = `[Article Context]\nTitle: ${article.title}\nSource: ${article.source}\nCategory: ${article.category}\nSummary: ${article.summary}\nFull Content: ${article.fullContent}\n\n[User Question]\n${text}`;
-      }
+      // The full prompt (article context / instructions) is stored on the
+      // message (promptText) so it stays in the conversation history —
+      // follow-up questions still see the article. `text` is what the UI
+      // displays; `displayText` overrides it for canned prompts.
+      const userMsg: ChatMessage = article
+        ? {
+            role: 'user',
+            text: displayText ?? text,
+            promptText: `[Article Context]\nTitle: ${article.title}\nSource: ${article.source}\nCategory: ${article.category}\nSummary: ${article.summary}\nFull Content: ${article.fullContent}\n\n[User Question]\n${text}`,
+          }
+        : displayText
+          ? { role: 'user', text: displayText, promptText: text }
+          : { role: 'user', text };
 
-      setMessages((prev) => {
-        const next = [...prev, userMsg];
-        messagesRef.current = next;
-        return next;
-      });
+      // Build the history synchronously from the ref (single source of truth)
+      // instead of relying on a setState updater side effect.
+      const history = [...messagesRef.current, userMsg];
+      messagesRef.current = history;
+      setMessages(history);
       setIsLoading(true);
 
       try {
-        const payload = [...messagesRef.current, { role: 'user' as const, text: promptText }];
+        const payload = history.map((m) => ({ role: m.role, text: m.promptText ?? m.text }));
 
         const res = await fetch('/api/summarize', {
           method: 'POST',
@@ -38,11 +46,9 @@ export function useAI() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to get response');
 
-        setMessages((prev) => {
-          const next = [...prev, { role: 'assistant' as const, text: data.response }];
-          messagesRef.current = next;
-          return next;
-        });
+        const withReply = [...messagesRef.current, { role: 'assistant' as const, text: data.response }];
+        messagesRef.current = withReply;
+        setMessages(withReply);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
       } finally {
@@ -64,7 +70,8 @@ export function useAI() {
           'Use simple everyday words. If a technical or financial term is needed, explain it briefly in plain English.',
           'Do not leave out important points, but keep every sentence short and easy to follow.',
         ].join('\n'),
-        article
+        article,
+        `Summarize: "${article.title}"`
       );
     },
     [sendMessage]

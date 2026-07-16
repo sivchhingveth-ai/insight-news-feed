@@ -1,20 +1,20 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { getBookmarks, toggleBookmark as storeToggle } from '@/lib/store';
+import { Article } from '@/lib/types';
+import { getBookmarkedArticles, toggleBookmark as storeToggle } from '@/lib/store';
 
 export function useBookmarks() {
-  const [bookmarks, setBookmarks] = useState<string[]>(() => {
+  const [savedArticles, setSavedArticles] = useState<Article[]>(() => {
     if (typeof window === 'undefined') return [];
-    return getBookmarks();
+    return getBookmarkedArticles();
   });
 
-  const toggle = useCallback((id: string) => {
-    const next = storeToggle(id);
-    setBookmarks(next);
-    return next;
+  const toggle = useCallback((id: string, article?: Article) => {
+    setSavedArticles(storeToggle(id, article));
   }, []);
 
+  const bookmarks = useMemo(() => savedArticles.map((a) => a.id), [savedArticles]);
   const bookmarkSet = useMemo(() => new Set(bookmarks), [bookmarks]);
 
   const isBookmarked = useCallback(
@@ -22,5 +22,5 @@ export function useBookmarks() {
     [bookmarkSet]
   );
 
-  return { bookmarks, toggleBookmark: toggle, isBookmarked };
+  return { bookmarks, bookmarkedArticles: savedArticles, toggleBookmark: toggle, isBookmarked };
 }

@@ -1,28 +1,36 @@
-const BOOKMARKS_KEY = 'insight_bookmarks';
+import { Article } from './types';
+
+// Full article snapshots are persisted (not just ids) so saved articles
+// still render after the live feed rotates past them.
+const BOOKMARK_ARTICLES_KEY = 'insight_bookmark_articles';
 const READ_KEY = 'insight_read';
 const SEEN_KEY = 'insight_seen';
 
-export function getBookmarks(): string[] {
+export function getBookmarkedArticles(): Article[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = localStorage.getItem(BOOKMARKS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const raw = localStorage.getItem(BOOKMARK_ARTICLES_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((a) => a && typeof a.id === 'string') : [];
   } catch {
     return [];
   }
 }
 
-export function setBookmarks(ids: string[]): void {
+function setBookmarkedArticles(articles: Article[]): void {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(ids));
+  localStorage.setItem(BOOKMARK_ARTICLES_KEY, JSON.stringify(articles));
 }
 
-export function toggleBookmark(id: string): string[] {
-  const bookmarks = getBookmarks();
-  const next = bookmarks.includes(id)
-    ? bookmarks.filter((b) => b !== id)
-    : [...bookmarks, id];
-  setBookmarks(next);
+export function toggleBookmark(id: string, article?: Article): Article[] {
+  const saved = getBookmarkedArticles();
+  const exists = saved.some((a) => a.id === id);
+  const next = exists
+    ? saved.filter((a) => a.id !== id)
+    : article
+      ? [...saved, article]
+      : saved;
+  setBookmarkedArticles(next);
   return next;
 }
 
