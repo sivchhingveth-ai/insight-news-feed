@@ -49,7 +49,7 @@ export function AIChatPanel({
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={onOpen}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-purple-600 shadow-lg shadow-accent/30 text-white overflow-hidden"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-[#0a0a0a] shadow-[0_0_20px_rgba(139,92,246,0.5),0_0_40px_rgba(139,92,246,0.3)] text-white overflow-hidden"
         aria-label="Open AI assistant"
       >
         <Image src="/icons/chat-ai.png" alt="AI Chat" width={40} height={40} className="object-cover" unoptimized />
