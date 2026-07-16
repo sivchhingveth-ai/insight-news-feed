@@ -65,11 +65,12 @@ export function BookmarksPage({ isOpen, articles, bookmarkIds, onClose, onArticl
               ) : (
                 <div className="space-y-4">
                   <AnimatePresence mode="popLayout">
-                    {savedArticles.map((article) => (
+                    {savedArticles.map((article, index) => (
                       <NewsCard
                         key={article.id}
                         article={article}
                         isBookmarked={bookmarkIds.includes(article.id)}
+                        staggerIndex={index}
                         onBookmarkToggle={onBookmarkToggle}
                         onClick={onArticleClick}
                         onSummarize={onSummarize}
