@@ -46,7 +46,13 @@ export function useAI() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to get response');
 
-        const withReply = [...messagesRef.current, { role: 'assistant' as const, text: data.response }];
+        const withReply = [...messagesRef.current, {
+          role: 'assistant' as const,
+          text: data.response,
+          articleUrl: article?.url,
+          articleImage: article?.imageUrl,
+          articleTitle: article?.title,
+        }];
         messagesRef.current = withReply;
         setMessages(withReply);
       } catch (err) {

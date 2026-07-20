@@ -118,6 +118,18 @@ export function AIChatPanel({
                           : 'bg-white/8 text-text-primary border border-glass-border'
                       }`}
                     >
+                      {msg.role === 'assistant' && msg.articleImage && (
+                        <a href={msg.articleUrl} target="_blank" rel="noopener noreferrer" className="block mb-2 -mx-1 -mt-1">
+                          <Image
+                            src={msg.articleImage}
+                            alt={msg.articleTitle || 'Article'}
+                            width={400}
+                            height={200}
+                            className="rounded-lg w-full h-auto object-cover max-h-40"
+                            unoptimized
+                          />
+                        </a>
+                      )}
                       {msg.role === 'user' ? msg.text : <FormattedMessage text={msg.text} />}
                     </div>
                   </div>

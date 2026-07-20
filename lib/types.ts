@@ -11,6 +11,10 @@ export interface ChatMessage {
   text: string;
   /** Full text sent to the AI (e.g. with article context); `text` is what the UI shows. */
   promptText?: string;
+  /** Article metadata for rendering image/link in the chat. */
+  articleUrl?: string;
+  articleImage?: string;
+  articleTitle?: string;
 }
 
 export interface Article {
