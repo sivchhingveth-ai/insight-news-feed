@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Article, Category } from '@/lib/types';
 
 async function fetchLiveNews(category?: Category): Promise<Article[]> {
@@ -69,13 +69,16 @@ export function useNews() {
   const [category, setCategory] = useState<Category>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const isFirstRender = useRef(true);
 
-  // Single fetch effect — runs on mount (category starts as 'all') and on
-  // every category change. A separate mount effect caused a duplicate
-  // initial request.
+  // Fetch effect — runs on mount (category starts as 'all') and on every category change
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+    } else {
+      setIsLoading(true);
+    }
     let cancelled = false;
-    setIsLoading(true);
     fetchLiveNews(category).then((data) => {
       if (cancelled) return;
       if (data.length > 0) {
