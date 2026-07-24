@@ -19,9 +19,9 @@ export const metadata: Metadata = {
   title: 'Noviq Now — Real-Time News Dashboard',
   description: 'Live news tracking dashboard with AI-powered summarization and real-time updates from multiple sources.',
   icons: {
-    icon: '/favicon.png',
-    shortcut: '/favicon.png',
-    apple: '/favicon.png',
+    icon: '/favicon.jpg',
+    shortcut: '/favicon.jpg',
+    apple: '/favicon.jpg',
   },
 };
 

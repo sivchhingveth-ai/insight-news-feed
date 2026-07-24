@@ -52,7 +52,7 @@ export function AIChatPanel({
         className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-[#0a0a0a] shadow-[0_0_20px_rgba(139,92,246,0.5),0_0_40px_rgba(139,92,246,0.3)] text-white overflow-hidden"
         aria-label="Open AI assistant"
       >
-        <Image src="/icons/chat-ai.png" alt="AI Chat" width={40} height={40} className="object-cover" unoptimized />
+        <Image src="/icons/chat-ai.jpg" alt="AI Chat" width={40} height={40} className="object-cover" unoptimized />
       </motion.button>
 
       <AnimatePresence>
@@ -75,7 +75,7 @@ export function AIChatPanel({
             >
               <div className="flex items-center justify-between border-b border-glass-border px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <Image src="/icons/chat-ai.png" alt="AI" width={20} height={20} className="rounded" unoptimized />
+                  <Image src="/icons/chat-ai.jpg" alt="AI" width={20} height={20} className="rounded" unoptimized />
                   <span className="text-sm font-semibold text-text-primary">Noviq AI</span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -98,7 +98,7 @@ export function AIChatPanel({
               <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
                 {messages.length === 0 && (
                   <div className="flex flex-col items-center justify-center h-full text-center">
-                    <Image src="/icons/chat-ai.png" alt="AI" width={60} height={60} className="rounded-xl mb-3 opacity-60" unoptimized />
+                    <Image src="/icons/chat-ai.jpg" alt="AI" width={60} height={60} className="rounded-xl mb-3 opacity-60" unoptimized />
                     <p className="text-sm text-text-secondary mb-1">Ask me about any news</p>
                     <p className="text-xs text-text-secondary/60">
                       Click &ldquo;Summarize&rdquo; on an article, or type a question below
